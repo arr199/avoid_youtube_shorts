@@ -1,0 +1,14 @@
+{
+    "manifest_version": 3,
+    "version": "1.0",
+    "name": "Pixel Auto-Craft",
+    "content_scripts": [
+        {
+           "matches": ["https://play.pixels.xyz/"],
+           "js": ["content.js"]
+        }
+     ]
+     ,"background" : {
+        "service_worker": "background.js"
+     }
+}
