@@ -1,19 +1,21 @@
-function autoCraft() {
-    const selectors = {
-        createButton: ".Crafting_craftingButton__Qd6Ke"
-    };
+let craftInterval;
 
-    const pixelCreateButton = document.querySelector(selectors.createButton);
+function autoCraft() {
+    const pageElementSelectors = {
+        createButton : ".Crafting_craftingButton__Qd6Ke"
+    }
+
+    const pixelCreateButton = document.querySelector(pageElementSelectors.createButton);
     if (pixelCreateButton && !pixelCreateButton.disabled) {
         console.log("CREATE BUTTON DETECTED !!!")
-        const intervalId = setInterval(() => {
+         craftInterval = setInterval(() => {
             if (!pixelCreateButton.disabled || pixelCreateButton.textContent === "In Progress") {
-                console.log(pixelCreateButton.textContent);
+                console.log(pixelCreateButton.textContent)
                 pixelCreateButton.click();
             } else {
                 console.log(pixelCreateButton.textContent)
                 console.log("CREATE BUTTON DISABLED !!!")
-                clearInterval(intervalId);
+                clearInterval(craftInterval);
             }
         }, 1000);
     } else {
@@ -22,12 +24,16 @@ function autoCraft() {
     }
 }
 
+
 chrome.runtime.onMessage.addListener( (  message , sender , sendResponse ) => {
-    if (message.text === "autocraft") {
-        console.log("autocrafting")
+    if (message === "start-autocraft") {
+        console.log("autocrafting started")
          autoCraft() 
     }
-    console.log("autocrafting")
+    if (message === "stop-autocraft") {
+        clearInterval(craftInterval);
+        console.log("autocrafting stopped")
+    }
    
 })
 

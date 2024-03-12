@@ -8,11 +8,19 @@
            "matches": ["<all_urls>"],
            "js": ["content.js"]
         }
-     ]
-     ,"background" : {
+     ],
+     "permissions": [
+        "storage",
+        "activeTab",
+        "scripting",
+        "tabs"
+     ],
+     "background" : {
         "service_worker": "./background.js"
      },
-     "action": {}
+     "action": {
+      "default_popup": "index.html"
+     }
    
      
 }

@@ -1,30 +1,36 @@
-
-
 const autoCraftButton = document.getElementById('auto-craft-button');
 
-const selectors = {
-    createButton : ".Crafting_craftingButton__Qd6Ke"
-}
-
-document.addEventListener("click", function(e) {
-    if (e.target && e.target.id === "auto-craft-button") {
-        toggleAutoCraft();
+// AUTO CRAFT BUTTON
+autoCraftButton.addEventListener("click", () => {
+    const messages = {
+        startAutoCraft : "start-autocraft",
+        stopAutoCraft : "stop-autocraft"
     }
-});
-
-function toggleAutoCraft() {
+    const { startAutoCraft, stopAutoCraft  } = messages;
+    
     const autoCraftButton = document.getElementById('auto-craft-button');
+
     if (autoCraftButton.textContent === "Auto-Craft") {
         autoCraftButton.textContent = "Stop Auto-Craft";
         autoCraftButton.classList.add("button-active");
-      
-       
-        console.log("Auto-Crafting...");
+        
+        chrome.tabs.query({ active : true } , (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, startAutoCraft)
+        }) 
+        
+        console.log("Auto-Crafting Started");
     } else {
         autoCraftButton.textContent = "Auto-Craft";
         autoCraftButton.classList.remove("button-active");
+        
+        chrome.tabs.query({ active : true } , (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, stopAutoCraft)
+        }) 
+
         console.log("Auto-Crafting Stopped");
-    }
-}
+    }    
+});
+
+
 
 
