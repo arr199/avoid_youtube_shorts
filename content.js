@@ -24,18 +24,13 @@ function autoCraft() {
     }
 }
 
-
 chrome.runtime.onMessage.addListener( (  message , sender , sendResponse ) => {
     if (message === "start-autocraft") {
         console.log("autocrafting started")
-         autoCraft() 
+        autoCraft() 
     }
     if (message === "stop-autocraft") {
         clearInterval(craftInterval);
         console.log("autocrafting stopped")
     }
-   
 })
-
-
-
