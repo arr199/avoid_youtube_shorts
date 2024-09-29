@@ -1,26 +1,21 @@
 {
-    "manifest_version": 3,
-    "version": "1.0",
-   
-    "name": "Pixel Auto-Craft",
-    "content_scripts": [
-        {
-           "matches": ["<all_urls>"],
-           "js": ["content.js"]
-        }
-     ],
-     "permissions": [
-        "storage",
-        "activeTab",
-        "scripting",
-        "tabs"
-     ],
-     "background" : {
-        "service_worker": "./background.js"
-     },
-     "action": {
-      "default_popup": "index.html"
-     }
-   
-     
+  "manifest_version": 3,
+  "version": "1.0",
+  "description": "Avoid YouTube shorts",
+
+  "name": "Avoid shorts",
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/"],
+      "js": ["content.js"]
+    }
+  ],
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "background": {
+    "service_worker": "./background.js"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "./icon.png"
+  }
 }
