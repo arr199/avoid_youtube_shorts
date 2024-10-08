@@ -8,6 +8,23 @@
         padding: 1em;
         background: #e9e9e9;
       }
+
+      #site-list-container {
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+
+        && div {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+
+          && input {
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
     </style>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -17,6 +34,34 @@
     <script src="index.js" type="module"></script>
   </head>
   <body>
-    <p>Avoid shorts 1.0</p>
+    <h2>Avoid websites</h2>
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <form action="">
+        <div id="site-list-container"></div>
+        <div style="display: flex; align-items: center; gap: 5px">
+          <input
+            id="youtube"
+            type="checkbox"
+            style="width: 16px; height: 16px"
+            checked="checked"
+          />
+          <label for="youtube">youtube.com</label>
+        </div>
+
+        <input
+          id="add-site-input"
+          style="padding: 5px 10px; margin-top: 10px"
+          type="text"
+          placeholder="Add a site to avoid"
+        />
+        <button
+          id="add-site-btn"
+          style="padding: 5px 10px; margin-top: 10px"
+          type="button"
+        >
+          Add
+        </button>
+      </form>
+    </div>
   </body>
 </html>
