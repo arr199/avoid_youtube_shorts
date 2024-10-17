@@ -6,7 +6,12 @@
   "name": "Avoid shorts",
   "content_scripts": [
     {
-      "matches": ["*://www.youtube.com/*"],
+      "matches": [
+        "*://www.youtube.com/*",
+        "*://www.tiktok.com/*",
+        "*://x.com/*",
+        "*://www.instagram.com/*"
+      ],
       "js": ["content.js"]
     }
   ],
