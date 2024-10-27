@@ -35,7 +35,6 @@ addSiteButtonEl.addEventListener("click", () => {
     // TODO: Add error message
     return;
   }
-
   try {
     const url = new URL(value).origin;
     if (!isValidInput(url)) return;
