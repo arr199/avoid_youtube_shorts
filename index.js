@@ -24,7 +24,6 @@ createSiteList();
 const inputs = getAll(`${SELECTORS.SITE_LIST_CONTAINER} input`) || null;
 
 // EVENT LISTENERS
-// ########################################################################################
 
 addSiteButtonEl.addEventListener("click", () => {
   let value = addSiteInputEl.value ?? "";
@@ -59,15 +58,12 @@ inputs?.forEach((input) => {
 });
 
 // FUNCTIONS
-// ########################################################################################
 
 function addNewSite(url) {
   const oldSites = JSON.parse(localStorage.getItem("sitesList")) || [];
   const newSite = { url, checked: true };
   localStorage.setItem("sitesList", JSON.stringify([...oldSites, newSite]));
 }
-
-// ########################################################################################
 
 function isValidInput(url) {
   const isValidUrl = url.startsWith("http://") || url.startsWith("https://");
@@ -77,7 +73,6 @@ function isValidInput(url) {
 
   return isValidUrl && !alreadyExistsInLocalStorage;
 }
-// ########################################################################################
 
 function createSiteList() {
   siteListContainerEl.innerHTML = "";
@@ -103,4 +98,3 @@ function createSiteList() {
     siteListContainerEl.appendChild(siteEl);
   });
 }
-// ########################################################################################
