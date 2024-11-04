@@ -1,5 +1,7 @@
-// TODO !IMPORTANT : Fix the bug where the checkbox is not checked when the page is reloaded
-// TODO : Add a feature to remove a site from the list
+// TODO: update the logic in the content script
+// TODO: show a message when the user tries to add a site that already exists
+// TODO: Add a feature to remove a site from the list
+
 
 //  CONSTANTS
 const SELECTORS = {
