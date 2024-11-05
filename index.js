@@ -1,7 +1,5 @@
-// TODO: update the logic in the content script
-// TODO: show a message when the user tries to add a site that already exists
 // TODO: Add a feature to remove a site from the list
-
+// TODO: Add a feature to lock the user from modifying the list for a period of time
 
 //  CONSTANTS
 const SELECTORS = {
@@ -9,6 +7,7 @@ const SELECTORS = {
   SITE_LIST_CONTAINER: "#site-list-container",
   ADD_SITE_INPUT: "#add-site-input",
   ADD_SITE_BUTTON: "#add-site-btn",
+  VALIDATION_ERROR_TEXT: "#error-message",
 };
 const SITES_LIST = "sitesList";
 
@@ -20,68 +19,62 @@ const formEl = get(SELECTORS.FORM);
 const siteListContainerEl = get(SELECTORS.SITE_LIST_CONTAINER);
 const addSiteInputEl = get(SELECTORS.ADD_SITE_INPUT);
 const addSiteButtonEl = get(SELECTORS.ADD_SITE_BUTTON);
+const validationErrorTextEl = get(SELECTORS.VALIDATION_ERROR_TEXT);
 
 // CREATE SITE LIST WITH ITEMS FROM SYNC STORAGE
 await createSiteList().then(() => {
   console.log("SITE LIST CREATED");
 });
 
-const checkBoxes = getAll(`${SELECTORS.SITE_LIST_CONTAINER} input`) || null;
-
 // EVENT LISTENERS
 
-addSiteButtonEl.addEventListener("click", async (e) => {
-  let value = addSiteInputEl.value ?? "";
-  value = value.trim();
-  value = value.replace(/\s+/g, "");
+formEl.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  await addNewSite();
+});
+addSiteButtonEl.addEventListener("click", addNewSite);
+addSiteInputEl.addEventListener("input", () => {
+  validationErrorTextEl.textContent = "";
+  addSiteInputEl.classList.remove("input-error");
+});
 
-  const isValidInput = await validateInput(value);
+// LOGIC FUNCTIONS
 
-  console.log("INPUT :", isValidInput);
+async function addNewSite() {
+  let url = addSiteInputEl.value ?? "";
+  url = url.replace(/\s+/g, "");
 
+  const isValidInput = await validateInput(url);
   if (!isValidInput) {
-    // TODO: Add error message
     return;
   }
 
   try {
-    const url = new URL(value).origin || null;
-    if (!url) throw new Error("Invalid URL");
+    const oldSitesList = await getSitesList();
 
-    await addNewSite(url);
-    await createSiteList();
+    const newSitesList = [...oldSitesList, { url, checked: true }];
+    chrome.storage.sync.set({ sitesList: newSitesList }, async () => {
+      await createSiteList();
+      addSiteInputEl.value = "";
+    });
   } catch (error) {
     console.error(error);
     alert("Invalid URL");
   }
-});
+}
 
-checkBoxes?.forEach((input) => {
-  input.addEventListener("change", async (e) => {
-    const oldSitesList = await getSitesList();
-    if (!oldSitesList || oldSitesList.length <= 0) return;
-
-    const updatedSites = oldSitesList.map((site) =>
-      site.url === e.target.id ? { ...site, checked: e.target.checked } : site
-    );
-
-    await chrome.storage.sync.set({ sitesList: updatedSites });
-
-    await createSiteList();
-  });
-});
-
-
-
-
-// LOGIC FUNCTIONS
-async function addNewSite(url) {
+async function updateSite(e) {
   const oldSitesList = await getSitesList();
+  if (!oldSitesList || oldSitesList.length <= 0) return;
 
-  const newSitesList = [...oldSitesList, { url, checked: true }];
-  chrome.storage.sync.set({ sitesList: newSitesList }, () => {
-    console.table("SAVING NEW SITE");
-  });
+  const updatedSites = oldSitesList.map((site) =>
+    site.url === e.target.id ? { ...site, checked: e.target.checked } : site
+  );
+
+  await chrome.storage.sync.set({ sitesList: updatedSites });
+
+  const sitesList = await chrome.storage.sync.get([SITES_LIST]);
+  console.table("sitesList update :", sitesList);
 }
 
 async function removeSite(url) {
@@ -116,23 +109,34 @@ async function createSiteList() {
 
     siteListContainerEl.appendChild(siteEl);
   });
+
+  const checkBoxes = getAll(`${SELECTORS.SITE_LIST_CONTAINER} input`) || null;
+  checkBoxes?.forEach((input) => input.addEventListener("change", updateSite));
 }
 
 // HELPERS FUNCTIONS
 async function validateInput(url) {
   const isValidUrl = url.startsWith("http://") || url.startsWith("https://");
   const oldSitesList = await getSitesList();
-  const doesNotExist = oldSitesList.every((site) => site.url !== url);
+  const siteDoesNotExist = oldSitesList.every((site) => site.url !== url);
 
-  console.log("URL :", url);
-  console.log("isValidUrl :", isValidUrl);
-  console.log("doesNotExist :", doesNotExist);
+  if (url === "") {
+    validationErrorTextEl.textContent = "Cannot be empty";
+  } else if (!isValidUrl) {
+    validationErrorTextEl.textContent = "Invalid URL";
+  } else if (!siteDoesNotExist) {
+    validationErrorTextEl.textContent = "Site already in the list";
+  }
 
-  return isValidUrl && doesNotExist;
+  const isValidInput = isValidUrl && siteDoesNotExist && url !== "";
+
+  if (!isValidInput) {
+    addSiteInputEl.classList.add("input-error");
+  }
+  return isValidInput;
 }
 
 async function getSitesList() {
   const items = await chrome.storage.sync.get([SITES_LIST]);
-
   return items?.sitesList ?? [];
 }
