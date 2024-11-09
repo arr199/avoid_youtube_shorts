@@ -25,6 +25,18 @@
           }
         }
       }
+      .input-error {
+        border: 1px solid red;
+
+        &&:focus {
+          border: 1px solid red;
+          outline: none;
+        }
+
+        &&:hover {
+          border: 1px solid red;
+        }
+      }
     </style>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -38,16 +50,6 @@
     <div style="display: flex; flex-direction: column; gap: 2px">
       <form action="">
         <div id="site-list-container"></div>
-        <div style="display: flex; align-items: center; gap: 5px">
-          <input
-            id="youtube"
-            type="checkbox"
-            style="width: 16px; height: 16px"
-            checked="checked"
-          />
-          <label for="youtube">youtube.com</label>
-        </div>
-
         <input
           id="add-site-input"
           style="padding: 5px 10px; margin-top: 10px"
@@ -61,6 +63,7 @@
         >
           Add
         </button>
+        <p id="error-message" style="color: red; margin-top: 10px"></p>
       </form>
     </div>
   </body>
