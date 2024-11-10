@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "version": "1.0",
+  "description": "Avoid YouTube shorts",
+
+  "name": "Avoid shorts",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.youtube.com/*",
+        "*://www.tiktok.com/*",
+        "*://x.com/*",
+        "*://www.instagram.com/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "background": {
+    "service_worker": "./background.js"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "./icon.png"
+  }
+}
