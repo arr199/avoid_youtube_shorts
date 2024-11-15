@@ -11,6 +11,7 @@
 
       #site-list-container {
         display: flex;
+        gap: 5px;
         flex-direction: column;
         margin-top: 10px;
 
@@ -35,6 +36,18 @@
 
         &&:hover {
           border: 1px solid red;
+        }
+      }
+
+      .delete-btn {
+        width: 13px;
+        margin-left: auto;
+        font-weight: bold;
+        cursor: pointer;
+
+        &&:hover {
+          filter: invert(37%) sepia(41%) saturate(6168%) hue-rotate(344deg)
+            brightness(114%) contrast(92%);
         }
       }
     </style>
