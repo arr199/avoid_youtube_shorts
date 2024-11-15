@@ -72,17 +72,18 @@ async function updateSite(e) {
   );
 
   await chrome.storage.sync.set({ sitesList: updatedSites });
-
-  const sitesList = await chrome.storage.sync.get([SITES_LIST]);
-  console.table("sitesList update :", sitesList);
 }
 
-async function removeSite(url) {
+async function removeSite(e) {
+  const id = e.target.dataset.id;
   const oldSitesList = await getSitesList();
-  const newSitesList = oldSitesList.filter((site) => site.url !== url);
+
+  const newSitesList = oldSitesList.filter((site) => site.url !== id);
   chrome.storage.sync.set({ sitesList: newSitesList }, () => {
     console.table("REMOVING SITE");
   });
+
+  await createSiteList();
 }
 
 async function createSiteList() {
@@ -95,6 +96,11 @@ async function createSiteList() {
   sitesList.forEach((site) => {
     const siteEl = document.createElement("div");
 
+    const deleteIconEl = document.createElement("img");
+    deleteIconEl.dataset.id = site.url;
+    deleteIconEl.src = "./trash-solid.svg";
+    deleteIconEl.classList.add("delete-btn");
+
     const inputEl = document.createElement("input");
     inputEl.id = site.url;
     inputEl.type = "checkbox";
@@ -106,12 +112,18 @@ async function createSiteList() {
 
     siteEl.appendChild(inputEl);
     siteEl.appendChild(labelEl);
+    siteEl.appendChild(deleteIconEl);
 
     siteListContainerEl.appendChild(siteEl);
   });
 
   const checkBoxes = getAll(`${SELECTORS.SITE_LIST_CONTAINER} input`) || null;
+  const deleteButtons = getAll(`${SELECTORS.SITE_LIST_CONTAINER} img`) || null;
+
   checkBoxes?.forEach((input) => input.addEventListener("change", updateSite));
+  deleteButtons?.forEach((button) =>
+    button.addEventListener("click", removeSite)
+  );
 }
 
 // HELPERS FUNCTIONS
