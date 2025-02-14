@@ -1,15 +1,25 @@
-// TODO: Add a feature to remove a site from the list
-// TODO: Add a feature to lock the user from modifying the list for a period of time
+// TODO: Add a validation pop up when the user tries to block the extension
 
-//  CONSTANTS
+/**
+ * @typedef {Object} Site
+ * @property {string} url
+ * @property {boolean} checked
+ */
+
+// HTML ELEMENT SELECTORS
 const SELECTORS = {
   FORM: "form",
   SITE_LIST_CONTAINER: "#site-list-container",
   ADD_SITE_INPUT: "#add-site-input",
   ADD_SITE_BUTTON: "#add-site-btn",
   VALIDATION_ERROR_TEXT: "#error-message",
+  LOCK_EXTENSION_BUTTON: "#lock-extension-btn",
+  LOCKED_TOOLTIP: "#locked-tooltip",
 };
+
+// CONSTANTS
 const SITES_LIST = "sitesList";
+const LOCKED = "locked";
 
 // GET HTML ELEMENTS HELPERS
 const get = (selector) => document.querySelector(selector);
@@ -20,9 +30,23 @@ const siteListContainerEl = get(SELECTORS.SITE_LIST_CONTAINER);
 const addSiteInputEl = get(SELECTORS.ADD_SITE_INPUT);
 const addSiteButtonEl = get(SELECTORS.ADD_SITE_BUTTON);
 const validationErrorTextEl = get(SELECTORS.VALIDATION_ERROR_TEXT);
+const lockExtensionButtonEl = get(SELECTORS.LOCK_EXTENSION_BUTTON);
+const lockedTooltip = document.querySelector(SELECTORS.LOCKED_TOOLTIP);
+const timeRemainingEl = document.createElement("p");
+
+lockExtensionButtonEl.addEventListener("mouseover", () => {
+  lockedTooltip.style.display = "block";
+});
+lockExtensionButtonEl.addEventListener("mouseout", () => {
+  lockedTooltip.style.display = "none";
+});
 
 // CREATE SITE LIST WITH ITEMS FROM SYNC STORAGE
-await createSiteList().then(() => {
+
+await createSiteList().then(async () => {
+  if (await isExtensionLocked()) {
+    disableUI();
+  }
   console.log("SITE LIST CREATED");
 });
 
@@ -37,6 +61,8 @@ addSiteInputEl.addEventListener("input", () => {
   validationErrorTextEl.textContent = "";
   addSiteInputEl.classList.remove("input-error");
 });
+
+lockExtensionButtonEl.addEventListener("click", lockExtension);
 
 // LOGIC FUNCTIONS
 
@@ -63,6 +89,9 @@ async function addNewSite() {
   }
 }
 
+/**
+ * @param {MouseEvent} e
+ */
 async function updateSite(e) {
   const oldSitesList = await getSitesList();
   if (!oldSitesList || oldSitesList.length <= 0) return;
@@ -74,6 +103,9 @@ async function updateSite(e) {
   await chrome.storage.sync.set({ sitesList: updatedSites });
 }
 
+/**
+ * @param {MouseEvent} e
+ */
 async function removeSite(e) {
   const id = e.target.dataset.id;
   const oldSitesList = await getSitesList();
@@ -85,7 +117,9 @@ async function removeSite(e) {
 
   await createSiteList();
 }
-
+/**
+ * @description Create a list of sites from the sync storage
+ */
 async function createSiteList() {
   siteListContainerEl.innerHTML = "";
 
@@ -126,7 +160,45 @@ async function createSiteList() {
   );
 }
 
+async function lockExtension() {
+  const oneWeekFromNow = new Date();
+  oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+
+  chrome.storage.sync.set({ locked: oneWeekFromNow.getTime() }, () => {
+    console.log("Locking extension");
+  });
+
+  disableUI();
+}
+
+async function updateRemainingLockedTime() {
+  const result = await chrome.storage.sync.get([LOCKED]);
+  const lockedTime = new Date(result.locked);
+
+  const remainingTime = new Date(lockedTime - Date.now());
+  const days = remainingTime.getUTCDate() - 1;
+  const hours = remainingTime.getUTCHours();
+  const minutes = remainingTime.getUTCMinutes();
+  const seconds = remainingTime.getUTCSeconds();
+  timeRemainingEl.textContent = `Time remaining: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+
+function disableUI() {
+  formEl.style.pointerEvents = "none";
+  formEl.style.opacity = 0.5;
+  formEl.style.pointer = "none";
+  lockExtensionButtonEl.textContent = "Locked";
+  lockExtensionButtonEl.insertAdjacentElement("afterend", timeRemainingEl);
+  updateRemainingLockedTime();
+  setInterval(updateRemainingLockedTime, 1000);
+}
+
 // HELPERS FUNCTIONS
+
+/**
+ * @param {string} url
+ * @returns {Promise<boolean>}
+ */
 async function validateInput(url) {
   const isValidUrl = url.startsWith("http://") || url.startsWith("https://");
   const oldSitesList = await getSitesList();
@@ -148,7 +220,19 @@ async function validateInput(url) {
   return isValidInput;
 }
 
+/**
+ * @returns {Promise<Site[]>}
+ */
 async function getSitesList() {
   const items = await chrome.storage.sync.get([SITES_LIST]);
   return items?.sitesList ?? [];
+}
+
+async function isExtensionLocked() {
+  const { locked = null } = await chrome.storage.sync.get([LOCKED]);
+
+  console.log(locked);
+  if (locked) return Date.now() < locked;
+
+  return false;
 }

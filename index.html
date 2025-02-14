@@ -50,6 +50,29 @@
             brightness(114%) contrast(92%);
         }
       }
+
+      #lock-extension-btn {
+        padding: 5px 10px;
+        margin-top: 10px;
+        background: rgb(34, 28, 28);
+        color: white;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+
+        &&:hover {
+          background: rgb(34, 28, 28, 0.8);
+        }
+      }
+
+      #locked-tooltip {
+        max-width: 200px;
+        display: none;
+        background-color: white;
+        color: red;
+        padding: 10px;
+        margin-top: 1em;
+      }
     </style>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -60,7 +83,10 @@
   </head>
   <body>
     <h2>Avoid websites</h2>
-    <div style="display: flex; flex-direction: column; gap: 2px">
+    <div
+      id="extension-popup-container"
+      style="display: flex; flex-direction: column; gap: 2px"
+    >
       <form action="">
         <div id="site-list-container"></div>
         <input
@@ -77,6 +103,13 @@
           Add
         </button>
         <p id="error-message" style="color: red; margin-top: 10px"></p>
+        <div>
+          <button id="lock-extension-btn" type="button">Lock extension</button>
+          <div id="locked-tooltip">
+            This action will lock the extension for 1 week. You will not be able
+            to change any settings during the lock period.
+          </div>
+        </div>
       </form>
     </div>
   </body>
