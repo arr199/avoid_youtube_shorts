@@ -34,13 +34,6 @@ const lockExtensionButtonEl = get(SELECTORS.LOCK_EXTENSION_BUTTON);
 const lockedTooltip = document.querySelector(SELECTORS.LOCKED_TOOLTIP);
 const timeRemainingEl = document.createElement("p");
 
-lockExtensionButtonEl.addEventListener("mouseover", () => {
-  lockedTooltip.style.display = "block";
-});
-lockExtensionButtonEl.addEventListener("mouseout", () => {
-  lockedTooltip.style.display = "none";
-});
-
 // CREATE SITE LIST WITH ITEMS FROM SYNC STORAGE
 
 await createSiteList().then(async () => {
@@ -61,7 +54,12 @@ addSiteInputEl.addEventListener("input", () => {
   validationErrorTextEl.textContent = "";
   addSiteInputEl.classList.remove("input-error");
 });
-
+lockExtensionButtonEl.addEventListener("mouseover", () => {
+  lockedTooltip.style.display = "block";
+});
+lockExtensionButtonEl.addEventListener("mouseout", () => {
+  lockedTooltip.style.display = "none";
+});
 lockExtensionButtonEl.addEventListener("click", lockExtension);
 
 // LOGIC FUNCTIONS
@@ -159,6 +157,9 @@ async function createSiteList() {
     button.addEventListener("click", removeSite)
   );
 }
+/**
+ * @description Lock the extension for a week disabling the form and the lock button
+ */
 
 async function lockExtension() {
   const oneWeekFromNow = new Date();
@@ -171,6 +172,9 @@ async function lockExtension() {
   disableUI();
 }
 
+/**
+ * @description Update the time remaining to unlock the extension
+ */
 async function updateRemainingLockedTime() {
   const result = await chrome.storage.sync.get([LOCKED]);
   const lockedTime = new Date(result.locked);
@@ -228,6 +232,9 @@ async function getSitesList() {
   return items?.sitesList ?? [];
 }
 
+/**
+ * @returns {Promise<boolean>}
+ */
 async function isExtensionLocked() {
   const { locked = null } = await chrome.storage.sync.get([LOCKED]);
 
