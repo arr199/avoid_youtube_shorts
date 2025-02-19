@@ -240,6 +240,5 @@ async function isExtensionLocked() {
 
   console.log(locked);
   if (locked) return Date.now() < locked;
-
   return false;
 }
